@@ -4,6 +4,7 @@ import com.mehmet.bookapi.dto.BookRequestDTO;
 import com.mehmet.bookapi.dto.BookResponseDTO;
 import com.mehmet.bookapi.service.BookService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,9 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -33,26 +33,32 @@ public class BookController {
     public ResponseEntity<List<BookResponseDTO>> getAllBooks() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
-    // @GetMapping("/page")
-    // public ResponseEntity<Page<BookRequestDTO>> getBooksPage(
-    //     @RequestParam(defaultValue = "0")int page,
-    //     @RequestParam(defaultValue = "5")int size,
-    //     @RequestParam(defaultValue = "id")String sortBy){
-    //         Page<BookResponseDTO> booksPage=bookService.getBooksPage(page,size,sortBy);
-    //         return ResponseEntity.ok(booksPage);
-    //     }
 
-@GetMapping("/page")
-public ResponseEntity<Page<BookResponseDTO>> getBooksPage(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "5") int size,
-        @RequestParam(defaultValue = "id") String sortBy) {
+    @GetMapping("/page")
+    public ResponseEntity<Page<BookResponseDTO>> getBooksPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
 
-    Page<BookResponseDTO> booksPage = bookService.getBooksPage(page, size, sortBy);
+        Page<BookResponseDTO> booksPage = bookService.getBooksPage(page, size, sortBy);
+        return ResponseEntity.ok(booksPage);
+    }
 
-    return ResponseEntity.ok(booksPage);
-}
+    @GetMapping("/search")
+    public ResponseEntity<List<BookResponseDTO>> searchBooksByTitle(
+            @RequestParam String title) {
 
+        List<BookResponseDTO> books = bookService.searchBooksByTitle(title);
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/author")
+    public ResponseEntity<List<BookResponseDTO>> searchBooksByAuthor(
+            @RequestParam String author) {
+
+        List<BookResponseDTO> books = bookService.searchBooksByAuthor(author);
+        return ResponseEntity.ok(books);
+    }
 
     @PostMapping
     public ResponseEntity<BookResponseDTO> createBook(@Valid @RequestBody BookRequestDTO dto) {
