@@ -1,10 +1,13 @@
 package com.mehmet.bookapi.service;
 
 import com.mehmet.bookapi.dto.BookRequestDTO;
+import com.mehmet.bookapi.dto.BookResponseDTO;
 import com.mehmet.bookapi.model.Book;
 import com.mehmet.bookapi.repository.BookRepository;
 import org.springframework.stereotype.Service;
+import com.mehmet.bookapi.exception.BookNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,44 +19,75 @@ public class BookService {
         this.bookRepository = bookRepository;
     }
 
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<BookResponseDTO> getAllBooks() {
+
+        List<Book> books = bookRepository.findAll();
+
+        List<BookResponseDTO> responseList = new ArrayList<>();
+
+        for (Book book : books) {
+            BookResponseDTO dto = convertToResponseDTO(book);
+            responseList.add(dto);
+        }
+
+        return responseList;
     }
 
-    // public Book createBook(Book book) {
-    //     return bookRepository.save(book);
-    // }
-    public Book createBook (BookRequestDTO dto){
-        
+    public BookResponseDTO createBook(BookRequestDTO dto) {
+
         Book book = new Book();
-        
+
         book.setTitle(dto.getTitle());
         book.setAuthor(dto.getAuthor());
         book.setPrice(dto.getPrice());
 
-        return bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
+
+        return convertToResponseDTO(savedBook);
     }
 
-    public Book getBookById(Long id) {
-        return bookRepository.findById(id).orElse(null);
-    }
+    public BookResponseDTO getBookById(Long id) {
 
-    public Book updateBook(Long id, Book updatedBook) {
-
-        Book book = bookRepository.findById(id).orElse(null);
+        Book book = bookRepository.findById(id).orElseThrow(()-> new BookNotFoundException(id));
 
         if (book == null) {
             return null;
         }
 
-        book.setTitle(updatedBook.getTitle());
-        book.setAuthor(updatedBook.getAuthor());
-        book.setPrice(updatedBook.getPrice());
-
-        return bookRepository.save(book);
+        return convertToResponseDTO(book);
     }
 
-    public void deleteBook(Long id) {
-        bookRepository.deleteById(id);
+    public BookResponseDTO updateBook(Long id, BookRequestDTO dto) {
+
+        Book book = bookRepository.findById(id)
+            .orElseThrow(() -> new BookNotFoundException(id));
+
+        if (book == null) {
+            return null;
+        }
+
+        book.setTitle(dto.getTitle());
+        book.setAuthor(dto.getAuthor());
+        book.setPrice(dto.getPrice());
+
+        Book updatedBook = bookRepository.save(book);
+
+        return convertToResponseDTO(updatedBook);
+    }
+
+   public void deleteBook(long id){
+    if (!bookRepository.existsById(id)){
+        throw new BookNotFoundException(id);
+    }
+    bookRepository.deleteById(id);
+   }
+
+    private BookResponseDTO convertToResponseDTO(Book book) {
+        return new BookResponseDTO(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPrice()
+        );
     }
 }
