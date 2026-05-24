@@ -30,7 +30,7 @@ public class BookService {
         List<BookResponseDTO> responseList = new ArrayList<>();
 
         for (Book book : books) {
-            BookResponseDTO dto = convertToResponseDTO(book);
+            BookResponseDTO dto = toResponseDTO(book);
             responseList.add(dto);
         }
 
@@ -47,7 +47,7 @@ public class BookService {
 
         Page<Book> booksPage = bookRepository.findAll(pageable);
 
-        return booksPage.map(this::convertToResponseDTO);
+        return booksPage.map(this::toResponseDTO);
     }
 
     public List<BookResponseDTO> searchBooksByTitle(String title) {
@@ -57,7 +57,7 @@ public class BookService {
         List<BookResponseDTO> responseList = new ArrayList<>();
 
         for (Book book : books) {
-            BookResponseDTO dto = convertToResponseDTO(book);
+            BookResponseDTO dto = toResponseDTO(book);
             responseList.add(dto);
         }
 
@@ -71,7 +71,21 @@ public class BookService {
         List<BookResponseDTO> responseList = new ArrayList<>();
 
         for (Book book : books) {
-            BookResponseDTO dto = convertToResponseDTO(book);
+            BookResponseDTO dto = toResponseDTO(book);
+            responseList.add(dto);
+        }
+
+        return responseList;
+    }
+
+    public List<BookResponseDTO> findExpensiveBooks(Double price) {
+
+        List<Book> books = bookRepository.findBooksMoreExpensiveThan(price);
+
+        List<BookResponseDTO> responseList = new ArrayList<>();
+
+        for (Book book : books) {
+            BookResponseDTO dto = toResponseDTO(book);
             responseList.add(dto);
         }
 
@@ -80,15 +94,11 @@ public class BookService {
 
     public BookResponseDTO createBook(BookRequestDTO dto) {
 
-        Book book = new Book();
-
-        book.setTitle(dto.getTitle());
-        book.setAuthor(dto.getAuthor());
-        book.setPrice(dto.getPrice());
+        Book book = toEntity(dto);
 
         Book savedBook = bookRepository.save(book);
 
-        return convertToResponseDTO(savedBook);
+        return toResponseDTO(savedBook);
     }
 
     public BookResponseDTO getBookById(Long id) {
@@ -96,7 +106,7 @@ public class BookService {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(id));
 
-        return convertToResponseDTO(book);
+        return toResponseDTO(book);
     }
 
     public BookResponseDTO updateBook(Long id, BookRequestDTO dto) {
@@ -110,7 +120,7 @@ public class BookService {
 
         Book updatedBook = bookRepository.save(book);
 
-        return convertToResponseDTO(updatedBook);
+        return toResponseDTO(updatedBook);
     }
 
     public void deleteBook(Long id) {
@@ -122,7 +132,19 @@ public class BookService {
         bookRepository.deleteById(id);
     }
 
-    private BookResponseDTO convertToResponseDTO(Book book) {
+    private Book toEntity(BookRequestDTO dto) {
+
+        Book book = new Book();
+
+        book.setTitle(dto.getTitle());
+        book.setAuthor(dto.getAuthor());
+        book.setPrice(dto.getPrice());
+
+        return book;
+    }
+
+    private BookResponseDTO toResponseDTO(Book book) {
+
         return new BookResponseDTO(
                 book.getId(),
                 book.getTitle(),
@@ -130,17 +152,4 @@ public class BookService {
                 book.getPrice()
         );
     }
-    public List<BookResponseDTO> findExpensiveBooks(Double price) {
-
-    List<Book> books = bookRepository.findBooksMoreExpensiveThan(price);
-
-    List<BookResponseDTO> responseList = new ArrayList<>();
-
-    for (Book book : books) {
-        BookResponseDTO dto = convertToResponseDTO(book);
-        responseList.add(dto);
-    }
-
-    return responseList;
-}
 }
