@@ -59,6 +59,14 @@ public class BookController {
         List<BookResponseDTO> books = bookService.searchBooksByAuthor(author);
         return ResponseEntity.ok(books);
     }
+    @GetMapping("/expensive")
+public ResponseEntity<List<BookResponseDTO>> findExpensiveBooks(
+        @RequestParam Double price) {
+
+    List<BookResponseDTO> books = bookService.findExpensiveBooks(price);
+
+    return ResponseEntity.ok(books);
+}
 
     @PostMapping
     public ResponseEntity<BookResponseDTO> createBook(@Valid @RequestBody BookRequestDTO dto) {

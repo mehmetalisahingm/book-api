@@ -130,4 +130,17 @@ public class BookService {
                 book.getPrice()
         );
     }
+    public List<BookResponseDTO> findExpensiveBooks(Double price) {
+
+    List<Book> books = bookRepository.findBooksMoreExpensiveThan(price);
+
+    List<BookResponseDTO> responseList = new ArrayList<>();
+
+    for (Book book : books) {
+        BookResponseDTO dto = convertToResponseDTO(book);
+        responseList.add(dto);
+    }
+
+    return responseList;
+}
 }
