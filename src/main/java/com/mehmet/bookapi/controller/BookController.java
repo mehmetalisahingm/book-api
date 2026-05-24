@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -31,6 +33,26 @@ public class BookController {
     public ResponseEntity<List<BookResponseDTO>> getAllBooks() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
+    // @GetMapping("/page")
+    // public ResponseEntity<Page<BookRequestDTO>> getBooksPage(
+    //     @RequestParam(defaultValue = "0")int page,
+    //     @RequestParam(defaultValue = "5")int size,
+    //     @RequestParam(defaultValue = "id")String sortBy){
+    //         Page<BookResponseDTO> booksPage=bookService.getBooksPage(page,size,sortBy);
+    //         return ResponseEntity.ok(booksPage);
+    //     }
+
+@GetMapping("/page")
+public ResponseEntity<Page<BookResponseDTO>> getBooksPage(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "5") int size,
+        @RequestParam(defaultValue = "id") String sortBy) {
+
+    Page<BookResponseDTO> booksPage = bookService.getBooksPage(page, size, sortBy);
+
+    return ResponseEntity.ok(booksPage);
+}
+
 
     @PostMapping
     public ResponseEntity<BookResponseDTO> createBook(@Valid @RequestBody BookRequestDTO dto) {

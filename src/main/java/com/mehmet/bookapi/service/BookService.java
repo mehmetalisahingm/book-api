@@ -6,6 +6,10 @@ import com.mehmet.bookapi.model.Book;
 import com.mehmet.bookapi.repository.BookRepository;
 import org.springframework.stereotype.Service;
 import com.mehmet.bookapi.exception.BookNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,4 +94,17 @@ public class BookService {
                 book.getPrice()
         );
     }
+
+ public Page<BookResponseDTO> getBooksPage(int page, int size, String sortBy) {
+
+    Pageable pageable = PageRequest.of(
+            page,
+            size,
+            Sort.by(sortBy).ascending()
+    );
+
+    Page<Book> booksPage = bookRepository.findAll(pageable);
+
+    return booksPage.map(this::convertToResponseDTO);
+}
 }
